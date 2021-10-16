@@ -1,9 +1,9 @@
 import axios from "axios";
 
-const crawlData = async (tag) => {
-    console.log('crawling data');
+const crawlBlogData = async (tag) => {
+    console.log('crawling tag data');
     try {
-        let response = await axios.get('http://localhost:5000/' + tag, {
+        let response = await axios.get('http://localhost:5000/tag/' + tag, {
             params: { tag: tag },
             crossDomain: true,
             method: 'POST',
@@ -16,4 +16,4 @@ const crawlData = async (tag) => {
     }
 }
 
-export default crawlData;
+export default crawlBlogData;

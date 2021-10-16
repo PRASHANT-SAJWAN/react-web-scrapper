@@ -21,6 +21,7 @@ input {
 }
 
 button {
+    cursor: pointer;
     line-height: 40px;
     font-size: 20px;
     outline: none;

@@ -1,10 +1,11 @@
 const cheerio = require('cheerio');
 
 class Blog {
-    constructor({ creator, title, uploadTime, readTime }) {
+    constructor({ creator, title, uploadTime, readTime, link }) {
         this.creator = creator;
         this.title = title;
         this.details = uploadTime + ", " + readTime;
+        this.link = link;
     }
 }
 
@@ -19,7 +20,8 @@ class BlogList {
                 creator: $($(element).find('.ha.t.ag.eg a')).text(),
                 title: $($(element).find('.gy.l h2')).text(),
                 uploadTime: $($(element).find('.ae.t p')).text(),
-                readTime: $($(element).find('.ae.t span.az.b.eb.ep.ee')).text()
+                readTime: $($(element).find('.ae.t span.az.b.eb.ep.ee')).text(),
+                link: $(element).find('.hn.l a').attr('href'),
             }));
         });
     }

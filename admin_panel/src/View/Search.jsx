@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import './Seach.css';
 
-import crawlData from '../Controller/Search';
+import crawlBlogData from '../Controller/Search';
+import BlogView from './BlogView';
 
 function Search() {
     const [tag, setTag] = useState("culture");
     // const [error, setError] = useState("");
     const [blogs, setBlogs] = useState([]);
-    const url = 'https://medium.com/';
 
     const handleKeyPress = async (e) => {
         if (e.key === 'Enter') {
@@ -25,7 +25,7 @@ function Search() {
 
     const fetchBlog = async () => {
         setBlogs([]);
-        let data = await crawlData(tag);
+        let data = await crawlBlogData(tag);
         setBlogs(data);
 
     }
@@ -36,11 +36,9 @@ function Search() {
                 await fetchBlog();
             }}> Send </button>
             <div>{blogs.map((blog) => {
-                return <div key={blog.details}>
-                    <p>{blog.creator}</p>
-                    <h1>{blog.title}</h1>
-                    <p>{blog.details}</p>
-                </div>
+                return (
+                    <BlogView key={blog.details} blog={blog}></BlogView>
+                )
             })}</div>
         </form>
     )

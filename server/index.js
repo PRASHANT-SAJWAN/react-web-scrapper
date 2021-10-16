@@ -2,12 +2,12 @@ const express = require('express');
 const app = express();
 const port = 5000;
 const axios = require('axios');
-const cheerio = require('cheerio');
 const fs = require('fs');
 
 const cors = require('cors');
 const pool = require('./db');
 const BlogList = require('./Model/blog');
+const Article = require('./Model/article');
 
 // middleware
 app.use(cors());
@@ -17,8 +17,7 @@ app.use(cors({
     origin: '*'
 }));
 
-const crawl = async (url) => {
-    let blogsList = [];
+const crawlBlogs = async (url) => {
     try {
         const urlResponse = await axios({
             method: 'get',
@@ -26,51 +25,35 @@ const crawl = async (url) => {
             withCredentials: false,
         })
         let data = urlResponse.data;
-        // fs.writeFileSync('./file.html', data);
-        blogsList = new BlogList(data).list;
+        fs.writeFileSync('./file.html', data);
+        return new BlogList(data).list;
     } catch (err) {
         console.log(err.message);
     }
-
-    return blogsList;
+    return [];
 };
 
-// create routes
-
-// create a todo
-app.post('/', async (req, res) => {
+const crawlArticles = async ({ url, article }) => {
     try {
-        console.log(req.body);
-        const { tag, creator, title, details } = req.body;
-        // const blogData = req.body;
-
-        /*
-        const newBlog = await pool.query("INSERT INTO blog (tag, creator, title, details) VALUES($1, $2, $3, %4) RETURNING *",
-            [tag, creator, title, details]);
-        res.json(newBlog)
-        */
-        res.json(req.body)
+        if (url.startsWith("http") === false)
+            url = `https://medium.com${url}`;
+        const urlResponse = await axios({
+            method: 'get',
+            url: url,
+            withCredentials: false,
+        });
+        let data = urlResponse.data;
+        // fs.writeFileSync('./file.html', data);
+        // console.log('article data response ', new Article(data, article));
+        return new Article(data, article);
     } catch (err) {
-        console.log(err.message);
+        console.log('crawl article error: ', err.message);
     }
-});
+};
 
-// get all blogs tags
-app.get('/', async (req, res) => {
-    try {
-        // res.send("<h1>HELLO WORLD !</h1>");
-        /*
-        const allBlogs = await pool.query('SELECT * FROM blog');
-        res.json(allBlogs);
-        */
-        console.log('Home Route');
-    } catch (err) {
-        console.log(err.message);
-    }
-})
-
+// ROUTES
 // get a blog tag
-app.get('/:tag', async (req, res) => {
+app.get('/tag/:tag', async (req, res) => {
     try {
         console.log('In /:tag');
         const { tag } = req.params;
@@ -80,12 +63,28 @@ app.get('/:tag', async (req, res) => {
             [tag]);
         res.json(blog.rows[0]);
         */
-        let blogs = await crawl('https://medium.com/tag/' + tag);
-        // console.log('blogs');
-        // console.log(blogs);
+        let blogs = await crawlBlogs('https://medium.com/tag/' + tag);
         res.send(blogs);
     } catch (err) {
         console.log('in /tag error: ' + err.message);
+    }
+});
+
+app.get('/article/:article', async (req, res) => {
+    try {
+        console.log('In /:article: ', req.query);
+        const { url, article } = req.query;     // sent by params in react frontend Article controller
+        /*
+        // fetching from DB
+        const blog = await pool.query('SELECT * FROM blog WHERE article = $1',
+            [article]);
+        res.json(blog.rows[0]);
+        */
+        let data = await crawlArticles({ url: url, article: article });
+        // console.log('article data', data);
+        res.send(data);
+    } catch (err) {
+        console.log('in /article error: ' + err.message);
     }
 });
 
