@@ -27,8 +27,8 @@ function Search() {
         setBlogs([]);
         let data = await crawlBlogData(tag);
         setBlogs(data);
-
     }
+
     return (
         <form className="container" onSubmit={onFormSubmit}>
             <input type="text" onChange={(e) => { setTag(e.target.value) }} value={tag} onKeyPress={handleKeyPress} />

@@ -26,6 +26,7 @@ const crawlBlogs = async (url) => {
         })
         let data = urlResponse.data;
         fs.writeFileSync('./file.html', data);
+        // fetch each article and store it inside BlogList
         return new BlogList(data).list;
     } catch (err) {
         console.log(err.message);
@@ -43,7 +44,7 @@ const crawlArticles = async ({ url, article }) => {
             withCredentials: false,
         });
         let data = urlResponse.data;
-        // fs.writeFileSync('./file.html', data);
+        // fs.writeFileSync('./file2.html', data);
         // console.log('article data response ', new Article(data, article));
         return new Article(data, article);
     } catch (err) {
@@ -72,8 +73,10 @@ app.get('/tag/:tag', async (req, res) => {
 
 app.get('/article/:article', async (req, res) => {
     try {
-        console.log('In /:article: ', req.query);
+        // console.log('In /:article: ', req.query);
         const { url, article } = req.query;     // sent by params in react frontend Article controller
+        // console.log('In /:article: ', req.body);
+        // const { url, article } = req.body;     // for postman
         /*
         // fetching from DB
         const blog = await pool.query('SELECT * FROM blog WHERE article = $1',

@@ -7,12 +7,18 @@ class Article {
         this.imgSrc = $($('figure img').get(0)).attr('src');
         this.list = [];
 
-        // console.log($($($('.n.p').children().get(5)).find('p')).text());
+        let allSections = $('.n.p');
+        let storyData, maxPTagsTillNow = 0;
 
-        /// todo:  check for each ('.n.p') if there are more than 5 'p' inside use this block
-        let storyData = $($($('.n.p')).children().get(4)).find('p');
+        // fetch those which have maximum 'p' tags in it
+        allSections.each((i, element) => {
+            let pTagsOfThisElement = $(element).find('p').length;
+            if (pTagsOfThisElement > maxPTagsTillNow) {
+                maxPTagsTillNow = pTagsOfThisElement;
+                storyData = $(element).find('p');
+            }
+        });
 
-        console.log($(storyData).html());
         storyData.each((i, element) => {
             // console.log('element => ', $(element).get(0).tagName, $(element).text());
             if ($(element).get(0).tagName === 'h2') {
@@ -22,7 +28,14 @@ class Article {
                 this.list.push({ 'p': $(element).text() });
             }
         });
-        console.log(this.list);
+
+        ///todo: for related topics, get tag with 'ul li' last found in whole page
+        this.relatedTags = []
+        $('ul').last().find('li').each((i, relatedTag) => {
+            this.relatedTags.push($(relatedTag).text());
+        })
+        // console.log(this.list);
+        // console.log(this.relatedTags);
     }
 }
 
