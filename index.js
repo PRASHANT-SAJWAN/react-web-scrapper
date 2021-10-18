@@ -23,7 +23,9 @@ app.options('*', cors())
 
 app.use(cors({
     origin: '*',
-    methods: ['GET', 'POST', 'DELETE', 'UPDATE', 'PUT', 'PATCH']
+    methods: ['GET', 'POST', 'DELETE', 'UPDATE', 'PUT', 'PATCH'],
+    "preflightContinue": true,
+    "optionsSuccessStatus": 204
 }));
 
 const crawlArticles = async ({ url, article }) => {
