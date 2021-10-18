@@ -19,7 +19,7 @@ app.use(express.json());
     next();
 });*/
 
-
+app.options('*', cors())
 
 app.use(cors({
     origin: '*',
