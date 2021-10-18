@@ -13,11 +13,11 @@ const Article = require('./Model/article');
 app.use(cors());
 app.use(express.json());
 
-/*app.use(function (req, res, next) {
+app.use(function (req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     next();
-});*/
+});
 
 app.options('*', cors())
 
@@ -85,6 +85,7 @@ const filter = (dbData) => {
 
 // ROUTES
 // get a blog tag
+app.options('/tag/:tag', cors())
 app.get('/tag/:tag', async (req, res) => {
     try {
         console.log('In /:tag');
