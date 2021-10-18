@@ -2,8 +2,9 @@
     box-sizing: border-box;
 }
 
-.container {
+.article-container {
     padding: 5% 20%;
+    overflow-x: none;
     align-items: center;
     margin: auto;
     height: 100vh;

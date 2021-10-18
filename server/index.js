@@ -17,23 +17,6 @@ app.use(cors({
     origin: '*'
 }));
 
-const crawlBlogs = async (url) => {
-    try {
-        const urlResponse = await axios({
-            method: 'get',
-            url: url,
-            withCredentials: false,
-        })
-        let data = urlResponse.data;
-        fs.writeFileSync('./file.html', data);
-        // fetch each article and store it inside BlogList
-        return new BlogList(data).list;
-    } catch (err) {
-        console.log(err.message);
-    }
-    return [];
-};
-
 const crawlArticles = async ({ url, article }) => {
     try {
         if (url.startsWith("http") === false)
@@ -52,42 +35,76 @@ const crawlArticles = async ({ url, article }) => {
     }
 };
 
+const crawlBlogs = async (url) => {
+    try {
+        const urlResponse = await axios({
+            method: 'get',
+            url: url,
+            withCredentials: false,
+        })
+        let data = urlResponse.data;
+        // fs.writeFileSync('./file.html', data);
+        // fetch each article and store it inside BlogList
+
+        let blogs = new BlogList(data).list;
+
+        for (let i = 0; i < blogs.length; ++i) {
+            let articleData = await crawlArticles({ url: blogs[i].link, article: blogs[i].title });
+            blogs[i].setArticleData(articleData);
+        }
+        return blogs;
+    } catch (err) {
+        console.log(err.message);
+    }
+    return [];
+};
+
+const filter = (dbData) => {
+    let data = [];
+    for (let i = 0; i < dbData.length; ++i) {
+        let articleData = JSON.parse(dbData[i].article);
+        data.push({
+            'title': dbData[i].title,
+            'creator': dbData[i].creator,
+            'link': dbData[i].link,
+            'details': dbData[i].details,
+            'articleData': articleData,
+        });
+    }
+    return data;
+}
+
 // ROUTES
 // get a blog tag
 app.get('/tag/:tag', async (req, res) => {
     try {
         console.log('In /:tag');
         const { tag } = req.params;
-        /*
-        // fetching from DB
-        const blog = await pool.query('SELECT * FROM blog WHERE tag = $1',
-            [tag]);
-        res.json(blog.rows[0]);
-        */
-        let blogs = await crawlBlogs('https://medium.com/tag/' + tag);
-        res.send(blogs);
-    } catch (err) {
-        console.log('in /tag error: ' + err.message);
-    }
-});
 
-app.get('/article/:article', async (req, res) => {
-    try {
-        // console.log('In /:article: ', req.query);
-        const { url, article } = req.query;     // sent by params in react frontend Article controller
-        // console.log('In /:article: ', req.body);
-        // const { url, article } = req.body;     // for postman
-        /*
-        // fetching from DB
-        const blog = await pool.query('SELECT * FROM blog WHERE article = $1',
-            [article]);
-        res.json(blog.rows[0]);
-        */
-        let data = await crawlArticles({ url: url, article: article });
-        // console.log('article data', data);
-        res.send(data);
+        let savedData = await pool.query('SELECT * FROM blog WHERE tag = $1', [tag]);
+
+        if (savedData.rowCount > 0) {
+            let data = filter(savedData.rows);
+            res.send(data);
+        } else {
+            let blogs = await crawlBlogs('https://medium.com/tag/' + tag);
+            // fetching from DB
+            for (let i = 0; i < blogs.length; ++i) {
+                let content = blogs[i].articleData.list;
+                let article = {
+                    'title': blogs[i].title,
+                    'imgSrc': blogs[i].articleData.imgSrc,
+                    'list': content,
+                    'relatedTags': blogs[i].articleData.relatedTags,
+                };
+                await pool.query('INSERT INTO blog (tag, creator, title, details, link, article) values ($1,$2,$3,$4,$5,$6)',
+                    [tag, blogs[i].creator, blogs[i].title, blogs[i].details, blogs[i].link, JSON.stringify(article)]);
+            }
+            // console.log(blogs);
+            res.send(blogs);
+        }
     } catch (err) {
-        console.log('in /article error: ' + err.message);
+        console.log('in /tag error: ' + err.message, err.stack);
     }
 });
 

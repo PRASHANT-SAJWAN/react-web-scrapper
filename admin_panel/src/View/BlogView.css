@@ -17,3 +17,8 @@
 .creator-name {
     font-family: 'Times New Roman', Times, serif;
 }
+
+.link {
+    color: black;
+    text-decoration: none;
+}

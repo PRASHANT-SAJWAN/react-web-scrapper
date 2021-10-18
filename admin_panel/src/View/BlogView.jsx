@@ -1,28 +1,29 @@
 import React from 'react'
 import './BlogView.css';
-import { useHistory } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 
 function BlogView({ blog }) {
     const history = useHistory();
-
+    const articleName = blog.title.split(' ').join('-');
+    const url = `/${articleName}`;
     const handleClick = () => {
-        let articleName = blog.title.split(' ').join('-');
-        let url = `/${articleName}`;
-        history.push({
-            pathname: url,
-            state: {
-                article: articleName,
-                link: blog.link
-            }
-        });
-        console.log(blog.link);
+        localStorage.setItem('articleData', JSON.stringify({
+            articleData: blog.articleData,
+            link: blog.link
+        }));
     }
     return (
-        <div className="blog-container" onClick={handleClick}>
-            <p className="creator-name">{blog.creator}</p>
-            <h2>{blog.title}</h2>
-            <p>{blog.details}</p>
-        </div>
+        blog === undefined ?
+            <div>Loading</div> :
+            <Link className="link"
+                to={url}
+                target="_blank">
+                <div className="blog-container" onClick={handleClick}>
+                    <p className="creator-name">{blog.creator}</p>
+                    <h2>{blog.title}</h2>
+                    <p>{blog.details}</p>
+                </div>
+            </Link>
     )
 }
 

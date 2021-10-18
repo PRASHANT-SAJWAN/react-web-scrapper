@@ -1,28 +1,19 @@
 import React, { useEffect, useState } from 'react'
-import { useLocation } from 'react-router-dom';
-import crawlArticleData from '../Controller/ArticlePage';
+import { useLocation, withRouter } from 'react-router-dom';
 import './ArticlePage.css';
 
 function ArticlePage() {
     const location = useLocation();
     const [articleData, setArticleData] = useState(null);
 
-    const fetchArticle = async () => {
-        const url = location.state.link
-        const articleName = location.state.article;
-        // console.log('fetch article ', { url, articleName });
-
-        let data = await crawlArticleData({ url, articleName });
-        setArticleData(data);
-        // console.log('article data ', data);
-    }
-
-    useEffect(async () => {
-        await fetchArticle();
+    useEffect(() => {
+        let localStorageData = JSON.parse(localStorage.getItem('articleData'));
+        console.log(localStorageData.articleData);
+        setArticleData(localStorageData.articleData);
     }, []);
 
     return (
-        <div className="container">
+        <div className="article-container">
             {articleData === null || articleData === {} ?
                 <div>LOADING ARTICLE</div> :
                 <div>
@@ -53,4 +44,4 @@ function ArticlePage() {
     )
 }
 
-export default ArticlePage;
+export default withRouter(ArticlePage);

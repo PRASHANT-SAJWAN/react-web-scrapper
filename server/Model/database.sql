@@ -1,8 +1,9 @@
-CREATE DATABASE blogs;
-
-CREATE TABLE blog {
-    tag PRIMARY KEY VARCHAR (25),
-    creator VARCHAR (50),
-    title VARCHAR (50),
-    details VARCHAR (50),
-}
+CREATE TABLE blog (
+    id SERIAL PRIMARY KEY,
+    tag VARCHAR,
+    creator VARCHAR,
+    title VARCHAR,
+    details VARCHAR,
+    link VARCHAR,
+    article VARCHAR
+);
